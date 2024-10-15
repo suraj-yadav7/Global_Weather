@@ -4,6 +4,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 import morgan from "morgan"
 import colors from "colors"
+import weatherRouter from "./routes/weather.routes.js"
 
 
 const app = express()
@@ -32,5 +33,6 @@ app.use(cors(corsOption))
 app.use(express.json())
 app.use(morgan("dev"))
 
-
+// root level routes
+app.use("/api", weatherRouter)
 
