@@ -3,21 +3,40 @@ import axios from 'axios'
 
 function Home() {
     const base_url = import.meta.env.VITE_BASE_URL
-    console.log("base url : client: ", base_url)
 
+    /** Required state's of application */
     const [cityName, setCityName] = useState('')
-    const [value, setValue]       = useState()
+    const [weather, setWeather]   = useState()
     const inputRef                = useRef(null)
 
-  //initial city weather
+    /** Fetching weather data when user search city */
+    const fetchCityData = async (e)=>{
+        if(e.key==="Enter"){
+            try{
+            let response = await axios.post(`${base_url}/api/current`,{city:cityName})
+            setWeather(response.data.data)
+            setCityName('')
+            }
+            catch(error){
+                console.log("error occured while fetching data", error)
+            }
+        }
+    }
+
+    /** Handle search city input */
+    const handleChange=(e)=>{
+        const {value} = e.target
+        setCityName(value)
+    }
+
+  /** fetch initial city weather */
     useEffect(()=>{
         axios.post(`${base_url}/api/current`, {
         city:"hyderabad"
         }).then((response)=>{
-            setValue(response.data.data)
+            setWeather(response.data.data)
         })
     },[]);
-
 
 return (
     <>
@@ -28,27 +47,31 @@ return (
         <div className="container">
             <div className="top">
                 <div className="location">
-                    <p> {value&& value.location.name}</p>
+                    <p> {weather && weather.location?.name}</p>
                 </div>
                 <div className="temp">
-                    <h2>{value&& (value.current.heatindex_c)} &deg;C</h2>
+                    <h2>{weather && (weather.current?.heatindex_c)} &deg;C</h2>
                 </div>
                 <div className="description">
                     <p>Clouds</p>
-                    <p>{value&& value.cloud} </p>
+                    <p>{weather&& weather.current?.cloud} </p>
                 </div>
             </div>
             <div className='middleContainer'>
+                <h2 className='region'>{weather && weather.location?.region}, <span className='city'>{weather && weather.location?.name}</span></h2>
+                <p>{weather && weather.current?.condition?.text}</p>
             </div>
             <div className="bottom">
                 <div className="feels">
-                    <p className='bold'>{value&& value.current.feelslike_c}</p>
+                    <p className='bold'>{weather&& weather.current?.feelslike_c}</p>
                     <p>Feels Like</p>
                 </div>
                 <div className="humidity">
+                    <p className='bold'>{weather && weather.current?.humidity} </p>
                     <p>Humidity</p>
                 </div>
                 <div className="wind">
+                    <p className='bold'>{weather && weather.current?.wind_kph}</p>
                     <p>wind speed</p>
                 </div>
             </div>
