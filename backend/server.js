@@ -19,7 +19,6 @@ app.listen(port , ()=>{
         console.log(`Server is running in ${mode} environment at ${port}`.bgCyan.white)
 });
 
-
 app.get("/", (req, res)=>{
     res.send("<h1>Weather API  Server Backend</h1>")
 });
