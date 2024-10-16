@@ -80,11 +80,11 @@ h1 {
 
 .container {
   max-width: 700px;
-  min-height: 100vh;
+  min-height: 92vh;
   margin: auto;
   padding: 0 1rem;
   position: relative;
-  top: 10%;
+  top: 2%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -92,7 +92,8 @@ h1 {
 
 .app .top {
   width: 100%;
-  margin: 2rem auto;
+  margin: 1px auto;
+  max-height: 70px;
 }
 
 .app .description {
@@ -107,10 +108,16 @@ h1 {
   justify-content: space-evenly;
   text-align: center;
   width: 100%;
-  margin: 6rem auto;
-  padding: 2rem 1rem;
+  margin: 1px auto;
+  margin-bottom: 2.2rem;
+  padding: 1rem 1rem;
+  padding-bottom: 1rem;
   border-radius: 12px;
   background-color: rgba(255,255,255, 0.2);
+}
+.bottom-text{
+  font-weight: 400;
+  font-size: 22px;
 }
 
 .bold {
@@ -125,11 +132,16 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px 0;
+  padding: 2px 0;
 }
 .region{
   padding: 10px 0;;
 }
 .city{
   font-weight: 300;
+}
+
+.chartContainer{
+  max-height: 330px;
+  max-width: 720px;
 }
