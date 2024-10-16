@@ -2,15 +2,17 @@ import React, { useState,useEffect,useRef } from 'react'
 import {Chart as ChartJS, ArcElement, Tooltip, Legend} from 'chart.js'
 import { Doughnut } from "react-chartjs-2";
 import axios from 'axios'
+import { cities } from '../utilities/famousCities.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 function Home() {
     const base_url = import.meta.env.VITE_BASE_URL
 
     /** Required states of application */
-    const [cityName, setCityName]   = useState('')
-    const [weather, setWeather]     = useState()
-    const inputRef                  = useRef(null)
+    const [cityName, setCityName]     = useState('')
+    const [weather, setWeather]       = useState()
+    const [suggestion, setSuggestion] = useState([])
+    const inputRef                    = useRef(null)
 
     const [chartData, setChartData] = useState({
         labels:["cloud", "visibility", "humidity", "wind-speed"],
@@ -28,25 +30,51 @@ function Home() {
         ]
     })
 
-    /** Fetching weather data when user search city */
-    const fetchCityData = async (e)=>{
-        if(e.key==="Enter"){
-            try{
-            let response = await axios.post(`${base_url}/api/current`,{city:cityName})
-            setWeather(response.data.data)
-            setCityName('')
-            }
-            catch(error){
-                console.log("error occured while fetching data", error)
-            }
+    //Fetch function to get weather data
+    const fetchWeatherData = async (city) => {
+        try {
+            let response = await axios.post(`${base_url}/api/current`, { city });
+            setWeather(response.data.data);
+            setCityName('');
+            setSuggestion([]);
+        } catch (error) {
+            console.log("Error occurred while fetching data", error);
         }
-    }
 
-    /** Handle search city input */
-    const handleChange=(e)=>{
-        const {value} = e.target
-        setCityName(value)
+        // Cursor at the end of the input field after selection
+        if (inputRef.current) {
+            inputRef.current.focus();
+            inputRef.current.selectionStart = inputRef.current.value.length;
+            inputRef.current.selectionEnd = inputRef.current.value.length;
+        }
     };
+
+    // Function to handle key press event for search
+    const fetchCityData = async (e) => {
+        if (e.key === "Enter") {
+            await fetchWeatherData(cityName);
+        }
+    };
+
+    // Handle input changes and suggest cities
+    const handleChange = (e) => {
+        const { value } = e.target;
+        setCityName(value);
+        if (value.length > 0) {
+            const filterSuggestion = cities.filter((elem) =>
+                elem.toLocaleLowerCase().includes(value.toLocaleLowerCase())
+            );
+            setSuggestion(filterSuggestion.splice(0, 4));
+        } else {
+            setSuggestion([]);
+        }
+    };
+
+    // Function to run when the user clicks on a suggestion
+    const suggestionSearch = async (city) => {
+        await fetchWeatherData(city);
+    };
+
 
   /** fetch initial city weather */
     useEffect(()=>{
@@ -67,22 +95,33 @@ function Home() {
         });
     },[]);
 
-/** Chart option to manage label styling */
-const options = {
-    plugins: {
-        legend: {
-            labels: {
-                padding: 12,
+    /** Chart option to manage label styling */
+    const options = {
+        plugins: {
+            legend: {
+                labels: {
+                    padding: 12,
+                },
             },
         },
-    },
-};
+    };
 
 return (
     <>
         <div className='app'>
         <div className="search">
         <input type='text' placeholder='enter your city' ref={inputRef} onKeyDown={(e)=>fetchCityData(e)} value={cityName} onChange={(e)=>handleChange(e)} />
+        {
+            setSuggestion.length>0 &&(
+            <ul className='citiesList'>
+            {
+                suggestion.map((cities,index)=> (
+                <li key={index} onClick={(e)=> {suggestionSearch(cities)}}>{cities}</li>
+                ))
+            }
+            </ul>
+        )
+        }
         </div>
         <div className="container">
             <div className="top">
