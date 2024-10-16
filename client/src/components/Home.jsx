@@ -1,6 +1,6 @@
 import React, { useState,useEffect,useRef } from 'react'
 import {Chart as ChartJS, ArcElement, Tooltip, Legend} from 'chart.js'
-import { Doughnut } from "react-chartjs-2";
+import {Doughnut} from "react-chartjs-2";
 import axios from 'axios'
 import { cities } from '../utilities/famousCities.js';
 
@@ -19,9 +19,9 @@ function Home() {
         datasets: [
             {
                 label: "%",
-                data:[22,45,70,50],
-                backgroundColor:["rgba(75, 192, 192)","rgba(54, 162, 235)","rgba(255, 99, 132)","rgba(180, 120, 60)"],
-                borderColor: ["rgba(75, 192, 192)","rgba(54, 162, 235)","rgba(255, 99, 132)","rgba(180, 120, 60)"],
+                data:[0,0,0,0],
+                backgroundColor: ["rgba(255, 205, 86, 0.8)", "rgba(75, 192, 192, 0.8)", "rgba(255, 99, 132, 0.8)", "rgba(153, 102, 255, 0.8)"],
+                borderColor: ["rgba(255, 205, 86, 0.8)", "rgba(75, 192, 192, 0.8)", "rgba(255, 99, 132, 0.8)", "rgba(153, 102, 255, 0.8)"],
                 borderWidth:30,
                 borderRadius:32,
                 spacing: 8,
@@ -30,11 +30,20 @@ function Home() {
         ]
     })
 
-    //Fetch function to get weather data
+    /** Fetch function to get weather data */
     const fetchWeatherData = async (city) => {
         try {
-            let response = await axios.post(`${base_url}/api/current`, { city });
+            let response   = await axios.post(`${base_url}/api/current`, { city });
             setWeather(response.data.data);
+            const {cloud, humidity, vis_km, wind_kph} = response.data.data.current
+            const labelItem=[cloud, vis_km, humidity, wind_kph]
+            setChartData((prev)=> ({
+                ...prev,
+                datasets:[{
+                    ...prev.datasets[0],
+                    data:labelItem
+                }]
+            }))
             setCityName('');
             setSuggestion([]);
         } catch (error) {
@@ -45,18 +54,18 @@ function Home() {
         if (inputRef.current) {
             inputRef.current.focus();
             inputRef.current.selectionStart = inputRef.current.value.length;
-            inputRef.current.selectionEnd = inputRef.current.value.length;
+            inputRef.current.selectionEnd   = inputRef.current.value.length;
         }
     };
 
-    // Function to handle key press event for search
+    /** Function to handle key press event for search */
     const fetchCityData = async (e) => {
         if (e.key === "Enter") {
             await fetchWeatherData(cityName);
         }
     };
 
-    // Handle input changes and suggest cities
+    /** Handle input changes and suggest cities */
     const handleChange = (e) => {
         const { value } = e.target;
         setCityName(value);
@@ -70,11 +79,10 @@ function Home() {
         }
     };
 
-    // Function to run when the user clicks on a suggestion
+    /** Function to run when the user clicks on a suggestion */
     const suggestionSearch = async (city) => {
         await fetchWeatherData(city);
     };
-
 
   /** fetch initial city weather */
     useEffect(()=>{
@@ -91,7 +99,6 @@ function Home() {
                     data:labelItem
                 }]
             }))
-
         });
     },[]);
 
@@ -112,7 +119,7 @@ return (
         <div className="search">
         <input type='text' placeholder='enter your city' ref={inputRef} onKeyDown={(e)=>fetchCityData(e)} value={cityName} onChange={(e)=>handleChange(e)} />
         {
-            setSuggestion.length>0 &&(
+            setSuggestion.length>0 && (
             <ul className='citiesList'>
             {
                 suggestion.map((cities,index)=> (
@@ -120,8 +127,7 @@ return (
                 ))
             }
             </ul>
-        )
-        }
+        )}
         </div>
         <div className="container">
             <div className="top">
@@ -137,7 +143,7 @@ return (
                 </div>
             </div>
             <div className='middleContainer'>
-				<Doughnut data={chartData}  options={options} className='chartContainer'/>
+				<Doughnut  data={chartData}  options={options} className='chartContainer'/>
                 <h2 className='region'>{weather && weather.location?.region}, <span className='city'>{weather && weather.location?.name}</span></h2>
                 <p>{weather && weather.current?.condition?.text}</p>
             </div>
