@@ -1,9 +1,9 @@
 
 import express from "express"
-import cors from "cors"
-import dotenv from "dotenv"
-import morgan from "morgan"
-import colors from "colors"
+import cors    from "cors"
+import dotenv  from "dotenv"
+import morgan  from "morgan"
+import colors  from "colors"
 import weatherRouter from "./routes/weather.routes.js"
 
 
@@ -23,6 +23,7 @@ app.listen(port , ()=>{
 app.get("/", (req, res)=>{
     res.send("<h1>Weather API  Server Backend</h1>")
 });
+
 const corsOption={
     origin     : client_url,
     mmethod    : ['GET',"POST", "PUT", "DELETE"],

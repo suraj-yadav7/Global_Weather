@@ -1,10 +1,10 @@
 import React, { useState,useEffect,useRef } from 'react'
-import {Chart as ChartJS, ArcElement, Tooltip, Legend} from 'chart.js'
-import {Doughnut} from "react-chartjs-2";
+import { Chart as ChartJS,  PointElement, LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
+import { Line } from 'react-chartjs-2';
 import axios from 'axios'
 import { cities } from '../utilities/famousCities.js';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 function Home() {
     const base_url = import.meta.env.VITE_BASE_URL
 
@@ -15,20 +15,32 @@ function Home() {
     const inputRef                    = useRef(null)
 
     const [chartData, setChartData] = useState({
-        labels:["cloud", "visibility", "humidity", "wind-speed"],
+        labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
         datasets: [
             {
-                label: "%",
-                data:[0,0,0,0],
-                backgroundColor: ["rgba(255, 205, 86, 0.8)", "rgba(75, 192, 192, 0.8)", "rgba(255, 99, 132, 0.8)", "rgba(153, 102, 255, 0.8)"],
-                borderColor: ["rgba(255, 205, 86, 0.8)", "rgba(75, 192, 192, 0.8)", "rgba(255, 99, 132, 0.8)", "rgba(153, 102, 255, 0.8)"],
-                borderWidth:30,
-                borderRadius:32,
-                spacing: 8,
-                cutout: 118,
-            }
-        ]
-    })
+                label: 'Temperature (°C)',
+                data: [10, 20, 30, 40, 50, 60, 70],
+                fill: false,
+                backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+            },
+            {
+                label: 'Visibility (km)',
+                data: [5, 7, 10, 4, 6, 8, 9],
+                fill: false,
+                backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+            },
+            {
+                label: 'Wind Speed (km/h)',
+                data: [15, 20, 25, 10, 30, 35, 40],
+                fill: false,
+                backgroundColor: 'rgba(255, 205, 86, 0.8)',
+                borderColor: 'rgba(255, 205, 86, 1)',
+            },
+        ],
+    }
+)
 
     /** Fetch function to get weather data */
     const fetchWeatherData = async (city) => {
@@ -48,7 +60,7 @@ function Home() {
             setSuggestion([]);
         } catch (error) {
             console.log("Error occurred while fetching data", error);
-        }
+        };
 
         // Cursor at the end of the input field after selection
         if (inputRef.current) {
@@ -84,34 +96,41 @@ function Home() {
         await fetchWeatherData(city);
     };
 
-  /** fetch initial city weather */
+    /** fetch initial city weather */
     useEffect(()=>{
-        axios.post(`${base_url}/api/current`, {
-        city:"hyderabad"
-        }).then((response)=>{
-            setWeather(response.data.data)
-            const {cloud, humidity, vis_km, wind_kph} = response.data.data.current
-            const labelItem=[cloud, vis_km, humidity, wind_kph]
-            setChartData((prev)=> ({
-                ...prev,
-                datasets:[{
-                    ...prev.datasets[0],
-                    data:labelItem
-                }]
-            }))
-        });
+        fetchWeatherData("hyderabad")
     },[]);
 
     /** Chart option to manage label styling */
     const options = {
+        responsive: true,
         plugins: {
             legend: {
+                position: 'top',
                 labels: {
-                    padding: 12,
+                color: 'white',
+                },
+            },
+                title: {
+                display: true,
+                text: 'Line Chart Example',
+                color: 'white',
+            },
+        },
+        scales: {
+            x: {
+                ticks: {
+                color: 'white',
+                },
+            },
+                y: {
+                ticks: {
+                color: 'white',
                 },
             },
         },
     };
+
 
 return (
     <>
@@ -143,7 +162,7 @@ return (
                 </div>
             </div>
             <div className='middleContainer'>
-				<Doughnut  data={chartData}  options={options} className='chartContainer'/>
+				<Line  data={chartData}  options={options} className='chartContainer'/>
                 <h2 className='region'>{weather && weather.location?.region}, <span className='city'>{weather && weather.location?.name}</span></h2>
                 <p>{weather && weather.current?.condition?.text}</p>
             </div>

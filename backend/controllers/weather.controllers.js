@@ -1,7 +1,7 @@
-import axios from "axios"
+import axios  from "axios"
 import dotenv from 'dotenv'
 
-dotenv.config()
+dotenv.config();
 const base_url = process.env.WEATHER_API
 const key = process.env.KEY
 
@@ -19,7 +19,7 @@ export const currentSensor = async(req, res)=>{
         console.log("Error Occured at currentSensor: ", error)
         return res.status(500).json({status:false, message:"Internal Server Error"})
     }
-}
+};
 
 // City History Data based on date
 export const weatherHistory = async(req, res)=>{
