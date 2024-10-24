@@ -4,7 +4,7 @@ const weatherRouter = express.Router()
 
 // Different routes
 weatherRouter.post("/current",  currentSensor )
-weatherRouter.post("/history/", weatherHistory)
+weatherRouter.post("/history", weatherHistory)
 weatherRouter.get("/data",      weatherData)
 
 export default weatherRouter;

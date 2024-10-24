@@ -1,4 +1,3 @@
-
 import express from "express"
 import cors    from "cors"
 import dotenv  from "dotenv"
@@ -30,10 +29,11 @@ const corsOption={
     credentials: true,
     optionSuccessStatus:200
 };
+
 app.use(cors(corsOption))
 app.use(express.json())
 app.use(morgan("dev"))
 
-// root level routes
+// routes
 app.use("/api", weatherRouter)
 

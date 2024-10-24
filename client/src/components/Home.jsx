@@ -7,6 +7,7 @@ import { cities } from '../utilities/famousCities.js';
 ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 function Home() {
     const base_url = import.meta.env.VITE_BASE_URL
+    const apiKey   = import.meta.env.VITE_KEY
 
     /** Required states of application */
     const [cityName, setCityName]     = useState('')
@@ -39,8 +40,7 @@ function Home() {
                 borderColor: 'rgba(255, 205, 86, 1)',
             },
         ],
-    }
-)
+    });
 
     /** Fetch function to get weather data */
     const fetchWeatherData = async (city) => {
@@ -49,13 +49,13 @@ function Home() {
             setWeather(response.data.data);
             const {cloud, humidity, vis_km, wind_kph} = response.data.data.current
             const labelItem=[cloud, vis_km, humidity, wind_kph]
-            setChartData((prev)=> ({
-                ...prev,
-                datasets:[{
-                    ...prev.datasets[0],
-                    data:labelItem
-                }]
-            }))
+            // setChartData((prev)=> ({
+            //     ...prev,
+            //     datasets:[{
+            //         ...prev.datasets[0],
+            //         data:labelItem
+            //     }]
+            // }))
             setCityName('');
             setSuggestion([]);
         } catch (error) {
@@ -96,9 +96,60 @@ function Home() {
         await fetchWeatherData(city);
     };
 
+    const getCoordinates = async(cityname)=>{
+        try{
+            const response = await axios.get(`${base_url}/weather?q=${cityname}&appid=${apiKey}`)
+            const coordinates = {
+                lat:0,
+                lon:0
+            }
+            console.log("rs: ", response)
+            if(response.status === 200){
+                setWeather(response.data)
+                const {lon, lat} = response.data.coord
+                coordinates.lat = lat
+                coordinates.lon = lon
+                return coordinates
+            }
+            else{
+                return false
+            }
+        }
+        catch(error){
+            console.log("Error occur while getting coordinates: ", error)
+            return false
+        }
+    };
+
+    const getWeatherDataForecast = async(lat, lon)=>{
+        try {
+            let response = await axios.get(`${base_url}/forecast?lat=${lat}&lon=${lon}&dt=1697836800&appid=${apiKey}`)
+            let weatherObj = {}
+            if(response.status === 200){
+                response.data.list.forEach(entry =>{
+                    const date = new Date(entry.dt * 1000).toISOString().split("T")[0]
+                    if(!weatherObj[date]){
+                        weatherObj[date] = entry
+                    }
+                })
+            }
+            console.log("Weather object data: ", weatherObj)
+        } catch (error) {
+            console.log("Error occur while geting weather forecast data: ", error)
+        }
+    };
+
+    const mainFunction = async(cityname)=>{
+        const coordinatesData = await getCoordinates(cityname)
+        if(coordinatesData){
+            const {lat, lon} = coordinatesData
+            // getWeatherDataForecast(lat, lon)
+        }
+    };
+    console.log("weather data: ", weather)
     /** fetch initial city weather */
     useEffect(()=>{
-        fetchWeatherData("hyderabad")
+        mainFunction("lucknow")
     },[]);
 
     /** Chart option to manage label styling */
