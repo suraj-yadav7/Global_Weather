@@ -16,25 +16,25 @@ function Home() {
     const inputRef                    = useRef(null)
 
     const [chartData, setChartData] = useState({
-        labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         datasets: [
             {
                 label: 'Temperature (°C)',
-                data: [10, 20, 30, 40, 50, 60, 70],
+                data: [10, 20, 30, 40, 50, 60],
                 fill: false,
                 backgroundColor: 'rgba(255, 99, 132, 0.8)',
                 borderColor: 'rgba(255, 99, 132, 1)',
             },
             {
                 label: 'Visibility (km)',
-                data: [5, 7, 10, 4, 6, 8, 9],
+                data: [5, 7, 10, 4, 6, 8],
                 fill: false,
                 backgroundColor: 'rgba(75, 192, 192, 0.8)',
                 borderColor: 'rgba(75, 192, 192, 1)',
             },
             {
-                label: 'Wind Speed (km/h)',
-                data: [15, 20, 25, 10, 30, 35, 40],
+                label: 'Wind Speed (kmph)',
+                data: [15, 20, 25, 10, 35, 40],
                 fill: false,
                 backgroundColor: 'rgba(255, 205, 86, 0.8)',
                 borderColor: 'rgba(255, 205, 86, 1)',
@@ -42,38 +42,11 @@ function Home() {
         ],
     });
 
-    /** Fetch function to get weather data */
-    const fetchWeatherData = async (city) => {
-        try {
-            let response   = await axios.post(`${base_url}/api/current`, { city });
-            setWeather(response.data.data);
-            const {cloud, humidity, vis_km, wind_kph} = response.data.data.current
-            const labelItem=[cloud, vis_km, humidity, wind_kph]
-            // setChartData((prev)=> ({
-            //     ...prev,
-            //     datasets:[{
-            //         ...prev.datasets[0],
-            //         data:labelItem
-            //     }]
-            // }))
-            setCityName('');
-            setSuggestion([]);
-        } catch (error) {
-            console.log("Error occurred while fetching data", error);
-        };
-
-        // Cursor at the end of the input field after selection
-        if (inputRef.current) {
-            inputRef.current.focus();
-            inputRef.current.selectionStart = inputRef.current.value.length;
-            inputRef.current.selectionEnd   = inputRef.current.value.length;
-        }
-    };
 
     /** Function to handle key press event for search */
     const fetchCityData = async (e) => {
         if (e.key === "Enter") {
-            await fetchWeatherData(cityName);
+             mainFunction(cityName);
         }
     };
 
@@ -93,17 +66,19 @@ function Home() {
 
     /** Function to run when the user clicks on a suggestion */
     const suggestionSearch = async (city) => {
-        await fetchWeatherData(city);
+        await cityWeatherAndCoord(city);
     };
 
-    const getCoordinates = async(cityname)=>{
+    const cityWeatherAndCoord = async(cityname)=>{
         try{
             const response = await axios.get(`${base_url}/weather?q=${cityname}&appid=${apiKey}`)
             const coordinates = {
                 lat:0,
                 lon:0
             }
-            console.log("rs: ", response)
+            setCityName('');
+            setSuggestion([]);
+            console.log("rs: ", response);
             if(response.status === 200){
                 setWeather(response.data)
                 const {lon, lat} = response.data.coord
@@ -132,24 +107,61 @@ function Home() {
                         weatherObj[date] = entry
                     }
                 })
+
+                const arrWeatherObj = Object.values(weatherObj)
+                let tempData = arrWeatherObj.map((elem) => (
+                    (elem.main.temp-273.15).toFixed()
+                ))
+
+                let visibilityData  = arrWeatherObj.map((elem) => (
+                    (elem.visibility/1000)
+                ))
+
+                let windSpeedData = arrWeatherObj.map((elem) => (
+                    (elem.wind.speed*3.6).toFixed(2)
+                ))
+
+                setChartData((prev)=>({
+                    ...prev,
+                    labels: Object.keys(weatherObj),
+                    datasets:[{
+                        ...prev.datasets[0],
+                        data:tempData
+                    },
+                    {
+                        ...prev.datasets[1],
+                        data:visibilityData
+                    },
+                    {
+                        ...prev.datasets[2],
+                        data:windSpeedData
+                    }
+                    ]
+                }))
             }
-            console.log("Weather object data: ", weatherObj)
+
+            // Cursor at the end of the input field after selection
+            if (inputRef.current) {
+                inputRef.current.focus();
+                inputRef.current.selectionStart = inputRef.current.value.length;
+                inputRef.current.selectionEnd   = inputRef.current.value.length;
+            }
         } catch (error) {
             console.log("Error occur while geting weather forecast data: ", error)
         }
     };
 
     const mainFunction = async(cityname)=>{
-        const coordinatesData = await getCoordinates(cityname)
+        const coordinatesData = await cityWeatherAndCoord(cityname)
         if(coordinatesData){
             const {lat, lon} = coordinatesData
-            // getWeatherDataForecast(lat, lon)
+            getWeatherDataForecast(lat, lon)
         }
     };
     console.log("weather data: ", weather)
     /** fetch initial city weather */
     useEffect(()=>{
-        mainFunction("lucknow")
+        // mainFunction("hyderabad")
     },[]);
 
     /** Chart option to manage label styling */
@@ -202,32 +214,32 @@ return (
         <div className="container">
             <div className="top">
                 <div className="location">
-                    <p> {weather && weather.location?.name}</p>
+                    <p> {weather && weather?.name}</p>
                 </div>
                 <div className="temp">
-                    <h2>{weather && (weather.current?.temp_c)} &deg;C</h2>
+                    <h2>{weather && ((weather.main?.temp -273.15).toFixed(1))} &deg;C</h2>
                 </div>
                 <div className="description">
                     <p>Clouds</p>
-                    <p>{weather&& weather.current?.cloud} </p>
+                    <p>{weather&& weather.clouds.all} % </p>
                 </div>
             </div>
             <div className='middleContainer'>
 				<Line  data={chartData}  options={options} className='chartContainer'/>
-                <h2 className='region'>{weather && weather.location?.region}, <span className='city'>{weather && weather.location?.name}</span></h2>
-                <p>{weather && weather.current?.condition?.text}</p>
+                <h2 className='region'>{weather && weather.name} <span className='city'>{weather && weather.location?.name}</span></h2>
+                <p>{weather && weather.weather[0]?.description}</p>
             </div>
             <div className="bottom">
                 <div className="feels">
-                    <p className='bold'>{weather&& weather.current?.vis_km} <span className='bottom-text'> km</span></p>
+                    <p className='bold'>{weather&& weather.visibility/1000} <span className='bottom-text'> km</span></p>
                     <p>Visibility</p>
                 </div>
                 <div className="humidity">
-                    <p className='bold'>{weather && weather.current?.humidity} </p>
+                    <p className='bold'>{weather && weather.main.humidity} % </p>
                     <p>Humidity</p>
                 </div>
                 <div className="wind">
-                    <p className='bold'>{weather && weather.current?.wind_kph} <sapn className='bottom-text'> kmph</sapn></p>
+                    <p className='bold'>{weather && (weather.wind.speed*3.6).toFixed(2)} <sapn className='bottom-text'> kmph</sapn></p>
                     <p>wind speed</p>
                 </div>
             </div>
