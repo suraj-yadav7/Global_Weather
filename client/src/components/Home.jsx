@@ -1,4 +1,4 @@
-import React, { useState,useEffect,useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Chart as ChartJS,  PointElement, LineElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import axios from 'axios'
@@ -14,27 +14,28 @@ function Home() {
     const [weather, setWeather]       = useState()
     const [suggestion, setSuggestion] = useState([])
     const inputRef                    = useRef(null)
+    const [loading, setLoading]       = useState(true)
 
     const [chartData, setChartData] = useState({
         labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         datasets: [
             {
                 label: 'Temperature (°C)',
-                data: [10, 20, 30, 40, 50, 60],
+                data: [10, 20, 30, 40, 30, 20],
                 fill: false,
                 backgroundColor: 'rgba(255, 99, 132, 0.8)',
                 borderColor: 'rgba(255, 99, 132, 1)',
             },
             {
                 label: 'Visibility (km)',
-                data: [5, 7, 10, 4, 6, 8],
+                data: [5, 7, 10, 4, 6, 10],
                 fill: false,
                 backgroundColor: 'rgba(75, 192, 192, 0.8)',
                 borderColor: 'rgba(75, 192, 192, 1)',
             },
             {
                 label: 'Wind Speed (kmph)',
-                data: [15, 20, 25, 10, 35, 40],
+                data: [15, 20, 25, 15, 35, 40],
                 fill: false,
                 backgroundColor: 'rgba(255, 205, 86, 0.8)',
                 borderColor: 'rgba(255, 205, 86, 1)',
@@ -46,7 +47,7 @@ function Home() {
     /** Function to handle key press event for search */
     const fetchCityData = async (e) => {
         if (e.key === "Enter") {
-             mainFunction(cityName);
+            mainFunction(cityName);
         }
     };
 
@@ -78,7 +79,6 @@ function Home() {
             }
             setCityName('');
             setSuggestion([]);
-            console.log("rs: ", response);
             if(response.status === 200){
                 setWeather(response.data)
                 const {lon, lat} = response.data.coord
@@ -154,14 +154,14 @@ function Home() {
     const mainFunction = async(cityname)=>{
         const coordinatesData = await cityWeatherAndCoord(cityname)
         if(coordinatesData){
+            setLoading(false)
             const {lat, lon} = coordinatesData
             getWeatherDataForecast(lat, lon)
         }
     };
-    console.log("weather data: ", weather)
     /** fetch initial city weather */
     useEffect(()=>{
-        // mainFunction("hyderabad")
+        mainFunction("hyderabad")
     },[]);
 
     /** Chart option to manage label styling */
@@ -197,20 +197,25 @@ function Home() {
 
 return (
     <>
-        <div className='app'>
-        <div className="search">
-        <input type='text' placeholder='enter your city' ref={inputRef} onKeyDown={(e)=>fetchCityData(e)} value={cityName} onChange={(e)=>handleChange(e)} />
-        {
-            setSuggestion.length>0 && (
-            <ul className='citiesList'>
+    {
+        loading && loading ? <div className='spinner'>
+                                <article></article>
+                                <p className='text-black opacity-75 mt-5 font-corrois text-lg'>Data is loading.... Please Wait....!</p>
+                            </div>
+        :<div className='app'>
+            <div className="search">
+            <input type='text' placeholder='enter your city' ref={inputRef} onKeyDown={(e)=>fetchCityData(e)} value={cityName} onChange={(e)=>handleChange(e)} />
             {
-                suggestion.map((cities,index)=> (
-                <li key={index} onClick={(e)=> {suggestionSearch(cities)}}>{cities}</li>
-                ))
-            }
-            </ul>
-        )}
-        </div>
+                setSuggestion.length>0 && (
+                    <ul className='citiesList'>
+                {
+                    suggestion.map((cities,index)=> (
+                        <li key={index} onClick={(e)=> {suggestionSearch(cities)}}>{cities}</li>
+                    ))
+                }
+                </ul>
+            )}
+            </div>
         <div className="container">
             <div className="top">
                 <div className="location">
@@ -245,6 +250,7 @@ return (
             </div>
         </div>
     </div>
+    }
     </>
     )
 };
