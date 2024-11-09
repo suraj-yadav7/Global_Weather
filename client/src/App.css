@@ -16,6 +16,37 @@ p {
 h1 {
   font-size: 6rem;
 }
+h3{
+  font-size: 1.5rem;
+}
+/* Mobile responsive */
+@media(max-width:460px){
+  p{
+    font-size:1.2rem;
+  }
+  h1{
+    font-size: 4rem;
+  }
+  h2{
+    font-size: 1.2rem;
+  }
+  h3{
+    font-size:1.3rem;
+    font-weight: 600;
+  }
+  .bottom-text{
+    font-size: 1.3rem !important;
+    font-weight: 500 !important;
+  }
+
+  .inputSuggestion{
+    font-size: 0.9rem !important;
+  }
+  .citiesList{
+    top:5% !important;
+  }
+
+}
 
 .app {
   width: 100%;
@@ -52,6 +83,12 @@ h1 {
   border: 1px solid rgba(255,255,255, 0.8);
   background: rgba(255,255,255, 0.1);
   color: #f8f8f8;
+}
+@media(max-width:460px){
+  .app input{
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+  }
 }
 
 .citiesList{
@@ -110,7 +147,7 @@ h1 {
   width: 100%;
   margin: 1px auto;
   margin-bottom: 2.2rem;
-  padding: 1rem 1rem;
+  padding: 1rem;
   padding-bottom: 1rem;
   border-radius: 12px;
   background-color: rgba(255,255,255, 0.2);

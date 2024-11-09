@@ -176,8 +176,11 @@ function Home() {
             },
                 title: {
                 display: true,
-                text: 'Line Chart Example',
+                text: 'Line Chart Weather Graph',
                 color: 'white',
+                font:{
+                    size:17
+                }
             },
         },
         scales: {
@@ -204,7 +207,7 @@ return (
                             </div>
         :<div className='app'>
             <div className="search">
-            <input type='text' placeholder='enter your city' ref={inputRef} onKeyDown={(e)=>fetchCityData(e)} value={cityName} onChange={(e)=>handleChange(e)} />
+            <input type='text'className='inputSuggestion' placeholder='Enter your city' ref={inputRef} onKeyDown={(e)=>fetchCityData(e)} value={cityName} onChange={(e)=>handleChange(e)} />
             {
                 setSuggestion.length>0 && (
                     <ul className='citiesList'>
@@ -219,33 +222,33 @@ return (
         <div className="container">
             <div className="top">
                 <div className="location">
-                    <p> {weather && weather?.name}</p>
+                    <h2> {weather && weather?.name}</h2>
                 </div>
                 <div className="temp">
-                    <h2>{weather && ((weather.main?.temp -273.15).toFixed(1))} &deg;C</h2>
+                    <p>{weather && ((weather.main?.temp -273.15).toFixed(1))} &deg;C</p>
                 </div>
                 <div className="description">
-                    <p>Clouds</p>
+                    <h2>Clouds</h2>
                     <p>{weather&& weather.clouds.all} % </p>
                 </div>
             </div>
             <div className='middleContainer'>
 				<Line  data={chartData}  options={options} className='chartContainer'/>
-                <h2 className='region'>{weather && weather.name} <span className='city'>{weather && weather.location?.name}</span></h2>
+                <h3 className='region'>{weather && weather.name} <span className='city'>{weather && weather.location?.name}</span></h3>
                 <p>{weather && weather.weather[0]?.description}</p>
             </div>
             <div className="bottom">
                 <div className="feels">
                     <p className='bold'>{weather&& weather.visibility/1000} <span className='bottom-text'> km</span></p>
-                    <p>Visibility</p>
+                    <h3>Visibility</h3>
                 </div>
                 <div className="humidity">
                     <p className='bold'>{weather && weather.main.humidity} % </p>
-                    <p>Humidity</p>
+                    <h3>Humidity</h3>
                 </div>
                 <div className="wind">
                     <p className='bold'>{weather && (weather.wind.speed*3.6).toFixed(2)} <sapn className='bottom-text'> kmph</sapn></p>
-                    <p>wind speed</p>
+                    <h3>Wind Speed</h3>
                 </div>
             </div>
         </div>

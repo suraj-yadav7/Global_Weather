@@ -13,7 +13,7 @@ export const currentSensor = async(req, res)=>{
             res.status(404).json({status:false, message:"Not Found"})
         }
         let response = await axios.get(`${base_url}?key=${key}&q=${city}`)
-        return res.status(200).json({status:true, message:"city weather request is successfull", data:response.data})
+        return res.status(200).json({status:true, message:"city weather request is successfull", data:response.data});
     }
     catch(error){
         console.log("Error Occured at currentSensor: ", error)
@@ -29,21 +29,10 @@ export const weatherHistory = async(req, res)=>{
             return res.status(200).json({status:true, message:"Provide a valid inputs"})
         }
         let response = await axios.get(`${base_url}?key=${key}&q=${city}&dt=${date}`)
-        return res.status(200).json({status:true, message:"History data fetch is successfull", data : response.data})
-
+        return res.status(200).json({status:true, message:"History data fetch is successfull", data : response.data});
     }
     catch(error){
         console.log("Error Occured at weatherHistory: ", error)
         return res.status(500).json({status:false, message:"Internal Server Error"})
     }
-}
-
-export const weatherData = async(req, res)=>{
-    try{
-
-    }
-    catch(error){
-        console.log("Error Occured at weatherData: ", error)
-        return res.status(500).json({status:false, message:"Internal Server Error"})
-    }
-}
+};
